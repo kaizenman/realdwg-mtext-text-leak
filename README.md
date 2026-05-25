@@ -21,13 +21,11 @@ reproduce the leak.
 
 ## Environment
 
-| Component          | Working                                        | Broken                                          |
-|--------------------|------------------------------------------------|-------------------------------------------------|
-| API call           | `AcDbMText::contentsRTF(AcString&)`            | `AcDbMText::text(AcString&)`                    |
-| MText origin       | in-memory (`new AcDbMText` + `setContents`)    | loaded via `AcDbDatabase::readDwgFile()`        |
-| RealDWG            | 25.1.72.0.0                                    | 25.1.72.0.0                                     |
-| Platform           | Windows 11 x64                                 | Windows 11 x64                                  |
-| Compiler           | MSVC v14.4 (VS 2022), C++17, `/MDd`            | MSVC v14.4 (VS 2022), C++17, `/MDd`             |
+- RealDWG 25.1.72.0.0 (AutoCAD 2025 SDK)
+- Windows 11 Enterprise (10.0.26200)
+- MSVC v14.4 (Visual Studio 2022), C++17
+- x64 console application
+- Reproduced on both Debug (`/MDd /Od`) and Release (`/MD /O2`)
 
 The leak does not depend on which working DB pattern is used: switching the API call
 alone (same file-loaded entity) or switching the entity source alone (same `text()`
@@ -65,15 +63,20 @@ Measured at default payload (one 90,000-char formatted MText, 300 iterations):
 
 | Wall time | Private Bytes |
 |---:|---:|
-|   0 s |  7.5 MB |
-|  92 s |   71 MB |
-| 184 s |  137 MB |
-| 369 s |  263 MB |
-| 554 s |  369 MB |
-| 739 s |  475 MB |
-| 923 s | **603 MB** (peak after 300 iterations) |
+|   0 s |   7.5 MB |
+|  92 s |  71.2 MB |
+| 184 s | 136.8 MB |
+| 369 s | 263.3 MB |
+| 554 s | 368.5 MB |
+| 739 s | 472.8 MB |
+| 925 s | **602.8 MB** (peak after 300 iterations) |
 
-Same loop with `contentsRTF()` instead of `text()`: 300 iterations finish in 2.5 s with
+| API on the loaded MText        | `text()` (leaks) | `contentsRTF()` (control) |
+|--------------------------------|------------------|---------------------------|
+| Private Bytes, 300 iterations  | 7.5 -> 602.8 MB  | 8.0 -> 10.0 MB             |
+| Wall time, 300 iterations      | 925 s            | 2.2 s                     |
+
+Same loop with `contentsRTF()` instead of `text()`: 300 iterations finish in 2.2 s with
 Private Bytes flat at ~10 MB.
 
 ## Impact
@@ -194,7 +197,7 @@ Last  Private MB:  9.4
 `AcDbMText::contentsRTF(AcString&)` returns the same content (RTF-encoded) on the
 same entities through a different internal code path in `acdb25.dll` and does **not**
 trigger the leak. Switching from `text()` to `contentsRTF()` plus stripping the RTF
-codes downstream keeps Private Bytes flat over 300 iterations (10 MB peak vs 603 MB
+codes downstream keeps Private Bytes flat over 300 iterations (10 MB peak vs 602.8 MB
 with `text()`).
 
 The repro program supports `USE_RTF=1` as an env var to swap the calls without code
