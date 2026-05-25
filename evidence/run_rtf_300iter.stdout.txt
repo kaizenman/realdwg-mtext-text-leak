@@ -1,0 +1,13 @@
+  saveAs => 0  path=C:\Users\MYKOLA~1.LYS\AppData\Local\Temp\repro_rtf_300iter.dwg
+AcDbMText::text() leak reproduction initialized.
+  Contents wchar count: 136000
+  Iterations:           300
+  Mode:                 readfile
+  Call:                 contentsRTF()
+  iter 1  text len=118151
+  iter 50  text len=118151
+  iter 100  text len=118151
+  iter 150  text len=118151
+  iter 200  text len=118151
+  iter 250  text len=118151
+  iter 300  text len=118151

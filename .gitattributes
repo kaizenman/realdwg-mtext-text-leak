@@ -1,0 +1,18 @@
+# Default to LF in repo for text files, but keep CRLF on Windows checkout for
+# .bat / .cmd / .ps1 (those tools choke on bare LF on some hosts).
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Explicit text types
+*.cpp text
+*.h text
+*.md text
+*.csv text
+*.txt text
+
+# Binary types
+*.dwg binary
+*.pdf binary
+*.png binary

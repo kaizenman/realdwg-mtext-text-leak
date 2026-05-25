@@ -1,0 +1,28 @@
+# MSVC build artifacts
+build/
+*.exe
+*.pdb
+*.obj
+*.ilk
+*.idb
+*.exp
+*.lib
+
+# VS workspace state
+.vs/
+*.user
+*.tlog
+*.suo
+
+# Optional generated DWG (the repro generates this at runtime in MODE=writeread)
+generated*.dwg
+
+# Runtime artifacts (in working tree, not the curated evidence/)
+/run_*.stdout.txt
+/run_*.stdin.txt
+/run_*.csv
+*.tmp
+
+# Evidence files are explicitly tracked even if they share these names
+!evidence/run_*.csv
+!evidence/run_*.stdout.txt
